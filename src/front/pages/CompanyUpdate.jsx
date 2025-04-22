@@ -64,20 +64,50 @@ const CompanyUpdate = () => {
     }
   };
 
+  // const updateCompany = async (businessData, id) => {
+  //   try {
+  //     const photoUrl = businessData.photo ? await uploadImage() : null;
+
+  //     const userDataToUpdate = photoUrl
+  //       ? { ...businessData, photo: photoUrl }
+  //       : businessData;
+
+  //     const response = await fetch(
+  //       `${import.meta.env.VITE_BACKEND_URL}/api/company_profile/${id}`,
+  //       {
+  //         method: "PUT",
+  //         headers: {
+  //           "content-type": "application/json",
+  //           Authorization: `Bearer ${store.token}`,
+  //         },
+  //         body: JSON.stringify(userDataToUpdate),
+  //       }
+  //     );
+  //     if (!response.ok) {
+  //       throw new Error("Error updating company");
+  //     }
+  //     const updateCompanyData = await response.json();
+  //     console.log("Company updated successfully", updateCompanyData);
+  //     alert("Company updated successfully ✅");
+  //   } catch (error) {
+  //     console.log("update failed:", error);
+  //     alert("There was an error updating the company ❌");
+  //   }
+  // };
   const updateCompany = async (businessData, id) => {
     try {
       const photoUrl = businessData.photo ? await uploadImage() : null;
-
+  
       const userDataToUpdate = photoUrl
         ? { ...businessData, photo: photoUrl }
         : businessData;
-
+  
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/company_profile/${id}`,
         {
           method: "PUT",
           headers: {
-            "content-type": "application/json",
+            "Content-Type": "application/json",
             Authorization: `Bearer ${store.token}`,
           },
           body: JSON.stringify(userDataToUpdate),
@@ -86,24 +116,28 @@ const CompanyUpdate = () => {
       if (!response.ok) {
         throw new Error("Error updating company");
       }
-      const updateCompanyData = await response.json();
-      console.log("Company updated successfully", updateCompanyData);
+      const updatedCompanyData = await response.json();
+      console.log("Company updated successfully", updatedCompanyData);
+      
+      // Actualiza el estado global con el perfil actualizado.
+      dispatch({ type: "update_profile", payload: updatedCompanyData });
+      
       alert("Company updated successfully ✅");
     } catch (error) {
       console.log("update failed:", error);
       alert("There was an error updating the company ❌");
     }
   };
+  
 
   const getProfileImage = () => {
-    if (business.photo) {
-      return URL.createObjectURL(business.photo);
+    if (store.profile && store.profile.photo) {
+      // Agregar un query param para evitar problemas de cache si es necesario.
+      return `${store.profile.photo}?timestamp=${new Date().getTime()}`;
     }
-    if (store.profile && store.profile.photo && !business.photo) {
-      return store.profile.photo;
-    }
-    return "https://coective.com/wp-content/uploads/2018/06/default-featured-image.png.jpg";
+    return "https://res.cloudinary.com/dqs8bd3ts/image/upload/v1696345012/ClubPetCare/DefaultProfileImage.png";
   };
+  
 
   return (
     <div className="container my-5">
